@@ -3,6 +3,6 @@ defmodule ExfileB2 do
 
   @doc false
   def start(_type, _args) do
-    ExfileB2.Supervisor.start_link()
+    {:ok, self}
   end
 end

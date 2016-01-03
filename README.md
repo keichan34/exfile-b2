@@ -7,6 +7,8 @@ A [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html) adapter for [E
 The B2 client is currently built in to this package. There are plans to break it out as its own
 package in the near future. Stay tuned.
 
+Requires Elixir ~> 1.2.
+
 ## Installation
 
   1. Add exfile_b2 to your list of dependencies in `mix.exs`:

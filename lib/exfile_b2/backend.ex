@@ -43,7 +43,7 @@ defmodule ExfileB2.Backend do
       {:error, reason} ->
         {:error, reason}
       {:ok, io} ->
-        {:ok, IO.read(io, :all) |> byte_size}
+        {:ok, IO.binread(io, :all) |> IO.iodata_length}
     end
   end
 
@@ -74,14 +74,14 @@ defmodule ExfileB2.Backend do
   # uploadable is an io
   def upload(%{meta: m} = backend, io) when is_pid(io) do
     id = backend.hasher.hash(io)
-    case IO.read(io, :all) do
+    case IO.binread(io, :all) do
       :eof ->
         {:ok, _} = :file.position(io, 0)
         upload(backend, io)
       {:error, reason} ->
         {:error, reason}
-      bytes ->
-        @b2_client.upload(m.b2, m.bucket, bytes, id)
+      iodata ->
+        @b2_client.upload(m.b2, m.bucket, IO.iodata_to_binary(iodata), id)
         {:ok, get(backend, id)}
     end
   end

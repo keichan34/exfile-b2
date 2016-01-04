@@ -25,7 +25,7 @@ defmodule ExfileB2.Backend do
   def open(%{meta: m} = backend, id) do
     case @b2_client.download(m.b2, m.bucket, path(backend, id)) do
       {:ok, contents} ->
-        StringIO.open(contents)
+        File.open(contents, [:ram, :binary])
       {:error, reason} ->
         {:error, reason}
     end
@@ -72,12 +72,9 @@ defmodule ExfileB2.Backend do
   end
 
   # uploadable is an io
-  def upload(%{meta: m} = backend, io) when is_pid(io) do
+  def upload(%{meta: m} = backend, io) do
     id = backend.hasher.hash(io)
     case IO.binread(io, :all) do
-      :eof ->
-        {:ok, _} = :file.position(io, 0)
-        upload(backend, io)
       {:error, reason} ->
         {:error, reason}
       iodata ->

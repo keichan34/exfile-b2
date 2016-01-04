@@ -16,7 +16,7 @@ Requires Elixir ~> 1.2.
         def deps do
           [
             {:exfile, ">= 0.0.0"},
-            {:exfile_b2, "~> 0.0.2"}
+            {:exfile_b2, "~> 0.0.3"}
           ]
         end
 

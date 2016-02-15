@@ -5,10 +5,7 @@ defmodule ExfileB2.B2Client.Memory do
 
   use GenServer
 
-  alias ExfileB2.B2Bucket
-  alias ExfileB2.B2File
-  alias ExfileB2.B2UploadAuthorization
-  alias ExfileB2.B2Client
+  alias ExfileB2.{B2Bucket, B2File, B2UploadAuthorization, B2Client}
 
   @behaviour B2Client
 

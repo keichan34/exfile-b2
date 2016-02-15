@@ -78,7 +78,7 @@ defmodule ExfileB2.Backend do
       {:error, reason} ->
         {:error, reason}
       iodata ->
-        @b2_client.upload(m.b2, m.bucket, IO.iodata_to_binary(iodata), id)
+        @b2_client.upload(m.b2, m.bucket, iodata, id)
         {:ok, get(backend, id)}
     end
   end

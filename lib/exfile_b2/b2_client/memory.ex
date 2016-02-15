@@ -27,13 +27,13 @@ defmodule ExfileB2.B2Client.Memory do
     GenServer.call(__MODULE__, {:get_upload_url, b2, bucket})
   end
 
-  def upload(b2, %B2Bucket{} = bucket, bytes, filename) do
+  def upload(b2, %B2Bucket{} = bucket, iodata, filename) do
     {:ok, auth} = get_upload_url(b2, bucket)
-    upload(b2, auth, bytes, filename)
+    upload(b2, auth, iodata, filename)
   end
 
-  def upload(b2, %B2UploadAuthorization{} = auth, bytes, filename) do
-    GenServer.call(__MODULE__, {:upload, b2, auth, bytes, filename})
+  def upload(b2, %B2UploadAuthorization{} = auth, iodata, filename) do
+    GenServer.call(__MODULE__, {:upload, b2, auth, iodata, filename})
   end
 
   def download(b2, bucket, path) do
@@ -137,13 +137,14 @@ defmodule ExfileB2.B2Client.Memory do
     }}, state}
   end
 
-  defp execute_rpc(b2, {:upload, _, auth, bytes, filename}, state) do
+  defp execute_rpc(b2, {:upload, _, auth, iodata, filename}, state) do
     bucket_id = auth.bucket_id
     bucket = Enum.find(state.buckets[b2.account_id], fn
       %{bucket_id: ^bucket_id} -> true
       _ -> false
     end)
     uri = get_download_url(b2, bucket, filename)
+    bytes = IO.iodata_to_binary(iodata)
     file = %B2File{
       bucket_id: auth.bucket_id,
       file_id: "some-random-file-id",

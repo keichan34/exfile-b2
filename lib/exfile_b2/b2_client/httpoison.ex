@@ -104,23 +104,23 @@ defmodule ExfileB2.B2Client.HTTPoison do
     end
   end
 
-  def upload(b2, %B2Bucket{} = bucket, bytes, filename) do
+  def upload(b2, %B2Bucket{} = bucket, iodata, filename) do
     case get_upload_url(b2, bucket) do
       {:ok, auth} ->
-        upload(b2, auth, bytes, filename)
+        upload(b2, auth, iodata, filename)
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  def upload(b2, %B2UploadAuthorization{} = auth, bytes, filename) do
+  def upload(b2, %B2UploadAuthorization{} = auth, iodata, filename) do
     headers = [
       {"Authorization", auth.authorization_token},
       {"X-Bz-File-Name", filename},
       {"Content-Type", "b2/x-auto"},
-      {"X-Bz-Content-Sha1", sha1hash(bytes)}
+      {"X-Bz-Content-Sha1", sha1hash(iodata)}
     ]
-    case post(auth.upload_url, bytes, headers, []) do
+    case post(auth.upload_url, iodata, headers, []) do
       {:ok, %{status_code: 200, body: original_body}} ->
         body = Poison.Parser.parse!(original_body)
         {:ok, to_file(body)}
@@ -128,7 +128,7 @@ defmodule ExfileB2.B2Client.HTTPoison do
         # Failure codes in the range 500 through 599 mean that the storage pod
         # is having trouble accepting your data. In this case you must call
         # b2_get_upload_url to get a new uploadUrl and a new authorizationToken.
-        upload(b2, %B2Bucket{bucket_id: auth.bucket_id}, bytes, filename)
+        upload(b2, %B2Bucket{bucket_id: auth.bucket_id}, iodata, filename)
       {:ok, %{status_code: code, body: original_body}} when code >= 400 and code < 500 ->
         # If the failure returns an HTTP status code in the range 400 through
         # 499, it means that there is a problem with your request.
@@ -196,8 +196,8 @@ defmodule ExfileB2.B2Client.HTTPoison do
     end
   end
 
-  defp sha1hash(bytes) do
-    :crypto.hash(:sha, bytes) |> Base.encode16(case: :lower)
+  defp sha1hash(iodata) do
+    :crypto.hash(:sha, iodata) |> Base.encode16(case: :lower)
   end
 
   defp get_download_url(%{download_url: download_url}, %{bucket_name: bucket_name}, filename) do

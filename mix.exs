@@ -5,7 +5,7 @@ defmodule ExfileB2.Mixfile do
     [
       app: :exfile_b2,
       version: "0.0.3",
-      elixir: "~> 1.2",
+      elixir: "~> 1.2.0",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps,
@@ -14,7 +14,13 @@ defmodule ExfileB2.Mixfile do
         extras: ["README.md"]
       ],
       package: package,
-      description: description
+      description: description,
+      dialyzer: [
+        plt_file: ".local.plt",
+        plt_add_apps: [
+          :exfile
+        ]
+      ]
    ]
   end
 
@@ -38,7 +44,7 @@ defmodule ExfileB2.Mixfile do
 
   defp deps do
     [
-      {:exfile, "~> 0.0.4"},
+      {:exfile, "~> 0.1.1"},
       {:httpoison, "~> 0.8.0"},
       {:poison, "~> 1.5"}
     ]

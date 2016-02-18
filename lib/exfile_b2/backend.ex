@@ -1,6 +1,8 @@
 defmodule ExfileB2.Backend do
   use Exfile.Backend
 
+  alias Exfile.LocalFile
+
   @b2_client Application.get_env(:exfile_b2, :b2_client, ExfileB2.B2Client.HTTPoison)
 
   def init(%{account_id: account_id, application_key: application_key, bucket: bucket_name} = opts) do
@@ -25,7 +27,8 @@ defmodule ExfileB2.Backend do
   def open(%{meta: m} = backend, id) do
     case @b2_client.download(m.b2, m.bucket, path(backend, id)) do
       {:ok, contents} ->
-        File.open(contents, [:ram, :binary])
+        io = File.open!(contents, [:ram, :binary])
+        {:ok, %LocalFile{io: io}}
       {:error, reason} ->
         {:error, reason}
     end
@@ -39,12 +42,9 @@ defmodule ExfileB2.Backend do
   end
 
   def size(backend, id) do
-    case open(backend, id) do
-      {:error, reason} ->
-        {:error, reason}
-      {:ok, io} ->
-        {:ok, IO.binread(io, :all) |> IO.iodata_length}
-    end
+    with  {:ok, local_file} <- open(backend, id),
+          {:ok, io}         <- LocalFile.open(local_file),
+          do: {:ok, IO.binread(io, :all) |> IO.iodata_length}
   end
 
   def delete(%{meta: m} = backend, file_id) do
@@ -53,27 +53,27 @@ defmodule ExfileB2.Backend do
 
   # uploadable is another Exfile.File
   def upload(backend, %Exfile.File{} = other_file) do
-    case Exfile.Backend.open(other_file) do
-      {:ok, io} ->
-        upload(backend, io)
+    case Exfile.File.open(other_file) do
+      {:ok, local_file} ->
+        upload(backend, local_file)
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  # uploadable is a string path to a tempfile
-  def upload(backend, uploadable) when is_binary(uploadable) do
-    case File.open(uploadable, [:read, :binary], fn(io) -> upload(backend, io) end) do
-      {:ok, result} ->
-        result
+  # uploadable is a Exfile.LocalFile
+  def upload(backend, %LocalFile{} = local_file) do
+    id = backend.hasher.hash(local_file)
+    case LocalFile.open(local_file) do
+      {:ok, io} ->
+        perform_upload(backend, id, io)
       {:error, reason} ->
         {:error, reason}
     end
   end
 
   # uploadable is an io
-  def upload(%{meta: m} = backend, io) do
-    id = backend.hasher.hash(io)
+  defp perform_upload(%{meta: m} = backend, id, io) do
     case IO.binread(io, :all) do
       {:error, reason} ->
         {:error, reason}

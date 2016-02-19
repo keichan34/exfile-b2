@@ -8,20 +8,14 @@ defmodule ExfileB2.Backend do
   def init(%{account_id: account_id, application_key: application_key, bucket: bucket_name} = opts) do
     {:ok, backend} = super(opts)
 
-    case @b2_client.authenticate(account_id, application_key) do
-      {:ok, b2} ->
-        case @b2_client.get_bucket(b2, bucket_name) do
-          {:ok, bucket} ->
+    with  {:ok, b2} <- @b2_client.authenticate(account_id, application_key),
+          {:ok, bucket} <- @b2_client.get_bucket(b2, bucket_name)
+          do
             put_in(backend.meta, %{
               bucket: bucket,
               b2: b2
             })
-          {:error, reason} ->
-            {:error, reason}
-        end
-      {:error, reason} ->
-        {:error, reason}
-    end
+          end
   end
 
   def open(%{meta: m} = backend, id) do

@@ -35,9 +35,10 @@ Requires Elixir ~> 1.2.
 
         config :exfile, Exfile,
           backends: %{
-            "cache" => [ExfileB2.Backend, %{
-              directory: "/",
-              max_size: nil,
-              hasher: Exfile.Hasher.Random
+            "store" => [ExfileB2.Backend, %{
+              hasher: Exfile.Hasher.Random,
+              account_id: "the Account ID to your B2 account",
+              application_key: "the Application Key to your B2 account",
+              bucket: "name of the bucket to store files"
             }]
           }

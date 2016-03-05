@@ -44,7 +44,7 @@ defmodule ExfileB2.Mixfile do
 
   defp deps do
     [
-      {:exfile, "~> 0.1.1"},
+      {:exfile, "~> 0.1.4"},
       {:httpoison, "~> 0.8.0"},
       {:poison, "~> 1.5"}
     ]

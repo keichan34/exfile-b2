@@ -20,6 +20,9 @@ defmodule ExfileB2.Mixfile do
         plt_add_apps: [
           :exfile
         ]
+      ],
+      aliases: [
+        "publish": [&git_tag/1, "hex.publish", "hex.docs"]
       ]
    ]
   end
@@ -65,5 +68,16 @@ defmodule ExfileB2.Mixfile do
     """
     A Backblaze B2 storage backend adapter for Exfile.
     """
+  end
+
+  defp git_tag(_args) do
+    version_tag = case Version.parse(project[:version]) do
+      {:ok, %Version{pre: []}} ->
+        "v" <> project[:version]
+      _ ->
+        raise "Version should be a release version."
+    end
+    System.cmd "git", ["tag", "-a", version_tag, "-m", "Release #{version_tag}"]
+    System.cmd "git", ["push", "--tags"]
   end
 end

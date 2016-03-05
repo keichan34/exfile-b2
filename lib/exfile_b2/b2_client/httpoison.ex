@@ -71,8 +71,12 @@ defmodule ExfileB2.B2Client.HTTPoison do
   def download_head(b2, bucket, path) do
     uri = get_download_url(b2, bucket, path)
     case head(uri, [{"Authorization", b2.authorization_token}], []) do
-      {:ok, %{status_code: 200}} ->
-        :ok
+      {:ok, %{status_code: 200, headers: headers}} ->
+        {_, size} = Enum.find headers, {nil, 0}, fn({key, _}) ->
+          String.downcase(key) == "content-length"
+        end
+
+        {:ok, String.to_integer(size)}
       {:ok, %{status_code: code, body: original_body}} ->
         body = Poison.Parser.parse!(original_body)
         {:error, {:"http_#{code}", body["message"]}}

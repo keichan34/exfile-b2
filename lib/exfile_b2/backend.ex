@@ -30,15 +30,13 @@ defmodule ExfileB2.Backend do
 
   def exists?(%{meta: m} = backend, id) do
     case @b2_client.download_head(m.b2, m.bucket, path(backend, id)) do
-      :ok -> true
+      {:ok, _} -> true
       _ -> false
     end
   end
 
-  def size(backend, id) do
-    with  {:ok, local_file} <- open(backend, id),
-          {:ok, io}         <- LocalFile.open(local_file),
-          do: {:ok, IO.binread(io, :all) |> IO.iodata_length}
+  def size(%{meta: m} = backend, id) do
+    @b2_client.download_head(m.b2, m.bucket, path(backend, id))
   end
 
   def delete(%{meta: m} = backend, file_id) do
@@ -72,7 +70,7 @@ defmodule ExfileB2.Backend do
       {:error, reason} ->
         {:error, reason}
       iodata ->
-        @b2_client.upload(m.b2, m.bucket, iodata, id)
+        _ = @b2_client.upload(m.b2, m.bucket, iodata, id)
         {:ok, get(backend, id)}
     end
   end

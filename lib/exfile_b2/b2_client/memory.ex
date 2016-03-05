@@ -173,7 +173,9 @@ defmodule ExfileB2.B2Client.Memory do
 
   defp execute_rpc(b2, {:download_head, _, bucket, path}, state) do
     case execute_rpc(b2, {:download, nil, bucket, path}, state) do
-      {{:ok, _}, state} -> {:ok, state}
+      {{:ok, contents}, state} ->
+        file_size = byte_size(contents)
+        {{:ok, file_size}, state}
       other -> other
     end
   end

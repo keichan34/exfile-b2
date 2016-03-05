@@ -27,7 +27,7 @@ defmodule ExfileB2.B2Client do
   @callback get_bucket(b2_client, String.t) :: {:ok, ExfileB2.B2Bucket.t} | {:error, atom}
 
   @callback download(b2_client, ExfileB2.B2Bucket.t, Path.t) :: {:ok, file_contents} | {:error, atom}
-  @callback download_head(b2_client, ExfileB2.B2Bucket.t, Path.t) :: :ok | {:error, atom}
+  @callback download_head(b2_client, ExfileB2.B2Bucket.t, Path.t) :: {:ok, non_neg_integer} | {:error, atom}
 
   @callback get_upload_url(b2_client, ExfileB2.B2Bucket.t) :: {:ok, ExfileB2.B2UploadAuthorization.t} | {:error, atom}
   @callback upload(b2_client, ExfileB2.B2Bucket.t, file_contents, file_name) :: {:ok, ExfileB2.B2File.t} | {:error, atom}

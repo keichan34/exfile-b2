@@ -1,8 +1,8 @@
 defmodule ExfileB2.B2Client.HTTPoison do
-  @behaviour ExfileB2.B2Client
-
   import HTTPoison, only: [get: 3, head: 3, post: 4]
   alias ExfileB2.{B2Bucket, B2File, B2UploadAuthorization, B2Client}
+
+  @behaviour B2Client
 
   def authenticate(account_id, application_key) do
     hackney_opts = [ basic_auth: {account_id, application_key} ]

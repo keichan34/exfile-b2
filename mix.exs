@@ -37,9 +37,7 @@ defmodule ExfileB2.Mixfile do
         :logger,
         :exfile,
         :httpoison,
-        :crypto
-      ],
-      included_applications: [
+        :crypto,
         :poison
       ]
     ]

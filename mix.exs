@@ -47,7 +47,9 @@ defmodule ExfileB2.Mixfile do
     [
       {:exfile, "~> 0.2.0"},
       {:httpoison, "~> 0.8.0"},
-      {:poison, "~> 1.5"}
+      {:poison, "~> 1.5"},
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.11", only: :dev}
     ]
   end
 
@@ -57,7 +59,8 @@ defmodule ExfileB2.Mixfile do
       maintainers: ["Keitaroh Kobayashi"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/keichan34/exfile-b2"
+        "GitHub" => "https://github.com/keichan34/exfile-b2",
+        "Docs" => "http://hexdocs.pm/exfile_b2/readme.html"
       }
     ]
   end

@@ -3,5 +3,6 @@
 /deps
 erl_crash.dump
 *.ez
+/doc
 
 .local.plt

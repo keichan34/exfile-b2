@@ -6,7 +6,9 @@ defmodule ExfileB2.Supervisor do
   end
 
   def init(:ok) do
-    children = []
+    children = [
+      worker(ExfileB2.LocalCache, [])
+    ]
 
     if requires_memory_server? do
       children = children ++ [

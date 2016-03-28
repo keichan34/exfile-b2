@@ -2,6 +2,7 @@ defmodule ExfileB2.Backend do
   use Exfile.Backend
 
   alias Exfile.LocalFile
+  alias ExfileB2.LocalCache
 
   @b2_client Application.get_env(:exfile_b2, :b2_client, ExfileB2.B2Client.HTTPoison)
 
@@ -19,8 +20,18 @@ defmodule ExfileB2.Backend do
   end
 
   def open(%{meta: m} = backend, id) do
+    case LocalCache.fetch(id) do
+      {:ok, path} ->
+        {:ok, %LocalFile{path: path}}
+      _error ->
+        uncached_open(backend, id)
+    end
+  end
+
+  defp uncached_open(%{meta: m} = backend, id) do
     case @b2_client.download(m.b2, m.bucket, path(backend, id)) do
       {:ok, contents} ->
+        LocalCache.store(id, contents)
         io = File.open!(contents, [:ram, :binary])
         {:ok, %LocalFile{io: io}}
       {:error, reason} ->
@@ -40,6 +51,7 @@ defmodule ExfileB2.Backend do
   end
 
   def delete(%{meta: m} = backend, file_id) do
+    LocalCache.delete(file_id)
     @b2_client.delete(m.b2, m.bucket, path(backend, file_id))
   end
 
@@ -70,6 +82,7 @@ defmodule ExfileB2.Backend do
       {:error, reason} ->
         {:error, reason}
       iodata ->
+        LocalCache.store(id, iodata)
         _ = @b2_client.upload(m.b2, m.bucket, iodata, id)
         {:ok, get(backend, id)}
     end

@@ -4,6 +4,10 @@
 
 A [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html) adapter for [Exfile](https://github.com/keichan34/exfile).
 
+ExfileB2 uses a local file-based cache to speed up file accesses and reduce bandwidth
+needs especially when doing processing. The default maximum is 100 MB, you can
+configure this to any amount you need.
+
 The B2 client is currently built in to this package. There are plans to break it out as its own
 package in the near future. Stay tuned.
 
@@ -42,3 +46,7 @@ Requires Elixir ~> 1.2.
               bucket: "name of the bucket to store files"
             }]
           }
+
+  4. Configure ExfileB2's local cache maximum size (optional, default 100 MB)
+
+        config :exfile_b2, :local_cache_size, 100_000_000 # bytes

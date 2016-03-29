@@ -47,4 +47,22 @@ defmodule ExfileB2.LocalCacheTest do
     assert File.exists?(path2) == false
     assert :error = LocalCache.fetch("delete-2")
   end
+
+  test "LRU algorithm evicts stored files that least recently used when exceeding the storage quota" do
+    LocalCache.flush
+
+    Application.put_env(:exfile_b2, :local_cache_size, 10)
+
+    {:ok, path1} = LocalCache.store("lru-1", ["hello1"])
+    {:ok, path2} = LocalCache.store("lru-2", ["hello2"])
+
+    LocalCache.vacuum
+
+    assert File.exists?(path1) == false
+    assert :error = LocalCache.fetch("lru-1")
+    assert File.exists?(path2) == true
+    assert {:ok, ^path2} = LocalCache.fetch("lru-2")
+
+    Application.put_env(:exfile_b2, :local_cache_size, 100_000_000)
+  end
 end

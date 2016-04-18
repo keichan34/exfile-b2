@@ -24,7 +24,7 @@ defmodule ExfileB2.B2Client do
   @type account_id :: String.t
   @type application_key :: String.t
 
-  @type file_contents :: iolist
+  @type file_contents :: iodata
   @type file_name :: String.t
 
   @type t :: %ExfileB2.B2Client{}

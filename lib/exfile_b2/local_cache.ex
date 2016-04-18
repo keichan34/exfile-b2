@@ -1,4 +1,8 @@
 defmodule ExfileB2.LocalCache do
+  @moduledoc """
+  The manager for ExfileB2's local cache of files.
+  """
+
   use GenServer
 
   # In ms, 30 seconds.
@@ -78,7 +82,7 @@ defmodule ExfileB2.LocalCache do
 
   def handle_call(:flush, _from, %{cache: cache}) do
     for {_, _, path} <- Map.values(cache) do
-      File.rm(path)
+      _ = File.rm(path)
     end
     {:reply, :ok, initial_state}
   end
@@ -89,14 +93,14 @@ defmodule ExfileB2.LocalCache do
 
   def handle_info(:vacuum, state) do
     state = perform_vacuum(state, cache_size)
-    Process.send_after(self, :vacuum, @vacuum_interval)
+    _ = Process.send_after(self, :vacuum, @vacuum_interval)
     {:noreply, state}
   end
 
   defp perform_delete(%{cache: cache} = state, key) do
     case Map.fetch(cache, key) do
       {:ok, {_, byte_size, path}} ->
-        File.rm(path)
+        _ = File.rm(path)
         state
         |> update_in([:cache], &Map.delete(&1, key))
         |> update_in([:bytes_used], &(&1 - byte_size))

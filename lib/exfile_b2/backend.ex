@@ -35,7 +35,7 @@ defmodule ExfileB2.Backend do
   defp uncached_open(%{meta: m} = backend, id) do
     case @b2_client.download(m.b2, m.bucket, path(backend, id)) do
       {:ok, contents} ->
-        LocalCache.store(id, contents)
+        _ = LocalCache.store(id, contents)
         io = File.open!(contents, [:ram, :binary])
         {:ok, %LocalFile{io: io}}
       {:error, reason} ->
@@ -86,7 +86,7 @@ defmodule ExfileB2.Backend do
       {:error, reason} ->
         {:error, reason}
       iodata ->
-        LocalCache.store(id, iodata)
+        _ = LocalCache.store(id, iodata)
         _ = @b2_client.upload(m.b2, m.bucket, iodata, id)
         {:ok, get(backend, id)}
     end

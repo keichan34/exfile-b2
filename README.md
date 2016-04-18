@@ -19,8 +19,8 @@ Requires Elixir ~> 1.2.
 
         def deps do
           [
-            {:exfile, "~> 0.2.0"},
-            {:exfile_b2, "~> 0.1.3"}
+            {:exfile, "~> 0.3.1"},
+            {:exfile_b2, "~> 0.2.0"}
           ]
         end
 
@@ -39,12 +39,12 @@ Requires Elixir ~> 1.2.
 
         config :exfile, Exfile,
           backends: %{
-            "store" => [ExfileB2.Backend, %{
+            "store" => {ExfileB2.Backend,
               hasher: Exfile.Hasher.Random,
               account_id: "the Account ID to your B2 account",
               application_key: "the Application Key to your B2 account",
               bucket: "name of the bucket to store files"
-            }]
+            }
           }
 
   4. Configure ExfileB2's local cache maximum size (optional, default 100 MB)

@@ -1,8 +1,10 @@
 defmodule ExfileB2.Supervisor do
+  @moduledoc false
+
   use Supervisor
 
   def start_link do
-    Supervisor.start_link(__MODULE__, :ok)
+    Supervisor.start_link(__MODULE__, :ok, name: ExfileB2.Supervisor)
   end
 
   def init(:ok) do

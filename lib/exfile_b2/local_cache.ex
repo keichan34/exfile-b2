@@ -9,7 +9,7 @@ defmodule ExfileB2.LocalCache do
   @vacuum_interval 30_000
 
   def start_link do
-    GenServer.start(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def fetch(key),
@@ -80,10 +80,8 @@ defmodule ExfileB2.LocalCache do
     {:reply, :ok, perform_delete(state, key)}
   end
 
-  def handle_call(:flush, _from, %{cache: cache}) do
-    for {_, _, path} <- Map.values(cache) do
-      _ = File.rm(path)
-    end
+  def handle_call(:flush, _from, state) do
+    :ok = perform_flush(state)
     {:reply, :ok, initial_state}
   end
 
@@ -97,6 +95,10 @@ defmodule ExfileB2.LocalCache do
     {:noreply, state}
   end
 
+  def terminate(_reason, state) do
+    perform_flush(state)
+  end
+
   defp perform_delete(%{cache: cache} = state, key) do
     case Map.fetch(cache, key) do
       {:ok, {_, byte_size, path}} ->
@@ -107,6 +109,13 @@ defmodule ExfileB2.LocalCache do
       _ ->
         state
     end
+  end
+
+  defp perform_flush(%{cache: cache}) do
+    for {_, _, path} <- Map.values(cache) do
+      _ = File.rm(path)
+    end
+    :ok
   end
 
   defp perform_vacuum(%{bytes_used: bytes} = state, cache_size) when bytes < cache_size,

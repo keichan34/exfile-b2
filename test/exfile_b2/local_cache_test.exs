@@ -48,6 +48,20 @@ defmodule ExfileB2.LocalCacheTest do
     assert :error = LocalCache.fetch("delete-2")
   end
 
+  test "cache deletes files if it is terminated" do
+    {:ok, path1} = LocalCache.store("flush-1", ["hello"])
+    {:ok, path2} = LocalCache.store("flush-2", ["hello"])
+
+    Process.exit(:erlang.whereis(LocalCache), :shutdown)
+
+    :timer.sleep(500)
+
+    assert File.exists?(path1) == false
+    assert :error = LocalCache.fetch("delete-1")
+    assert File.exists?(path2) == false
+    assert :error = LocalCache.fetch("delete-2")
+  end
+
   test "LRU algorithm evicts stored files that least recently used when exceeding the storage quota" do
     LocalCache.flush
 

@@ -4,7 +4,7 @@ defmodule ExfileB2.Mixfile do
   def project do
     [
       app: :exfile_b2,
-      version: "0.1.3",
+      version: "0.2.0",
       elixir: "~> 1.2.0",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -45,7 +45,7 @@ defmodule ExfileB2.Mixfile do
 
   defp deps do
     [
-      {:exfile, "~> 0.2.0"},
+      {:exfile, "~> 0.3.1"},
       {:httpoison, "~> 0.8.0"},
       {:poison, "~> 1.5"},
       {:earmark, "~> 0.1", only: :dev},

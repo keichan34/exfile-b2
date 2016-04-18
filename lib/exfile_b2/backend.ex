@@ -6,7 +6,11 @@ defmodule ExfileB2.Backend do
 
   @b2_client Application.get_env(:exfile_b2, :b2_client, ExfileB2.B2Client.HTTPoison)
 
-  def init(%{account_id: account_id, application_key: application_key, bucket: bucket_name} = opts) do
+  def init(opts) do
+    account_id      = Keyword.get(opts, :account_id)      || raise(ArgumentError, message: "account_id is required.")
+    application_key = Keyword.get(opts, :application_key) || raise(ArgumentError, message: "application_key is required.")
+    bucket_name     = Keyword.get(opts, :bucket)          || raise(ArgumentError, message: "bucket is required.")
+
     {:ok, backend} = super(opts)
 
     with  {:ok, b2} <- @b2_client.authenticate(account_id, application_key),
@@ -19,7 +23,7 @@ defmodule ExfileB2.Backend do
           end
   end
 
-  def open(%{meta: m} = backend, id) do
+  def open(backend, id) do
     case LocalCache.fetch(id) do
       {:ok, path} ->
         {:ok, %LocalFile{path: path}}

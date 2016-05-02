@@ -4,7 +4,7 @@ defmodule ExfileB2.Backend do
   alias Exfile.LocalFile
   alias ExfileB2.LocalCache
 
-  @b2_client Application.get_env(:exfile_b2, :b2_client, ExfileB2.B2Client.HTTPoison)
+  @b2_client B2Client.backend
 
   def init(opts) do
     account_id      = Keyword.get(opts, :account_id)      || raise(ArgumentError, message: "account_id is required.")

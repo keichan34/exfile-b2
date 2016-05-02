@@ -22,9 +22,6 @@ defmodule ExfileB2.Mixfile do
           :httpoison,
           :poison
         ]
-      ],
-      aliases: [
-        "publish": [&git_tag/1, "hex.publish", "hex.docs"]
       ]
    ]
   end
@@ -38,9 +35,7 @@ defmodule ExfileB2.Mixfile do
       applications: [
         :logger,
         :exfile,
-        :httpoison,
-        :crypto,
-        :poison
+        :b2_client,
       ]
     ]
   end
@@ -48,8 +43,7 @@ defmodule ExfileB2.Mixfile do
   defp deps do
     [
       {:exfile, "~> 0.3.1"},
-      {:httpoison, "~> 0.8.0"},
-      {:poison, "~> 1.5"},
+      {:b2_client, "~> 0.0.1"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
     ]
@@ -71,16 +65,5 @@ defmodule ExfileB2.Mixfile do
     """
     A Backblaze B2 storage backend adapter for Exfile.
     """
-  end
-
-  defp git_tag(_args) do
-    version_tag = case Version.parse(project[:version]) do
-      {:ok, %Version{pre: []}} ->
-        "v" <> project[:version]
-      _ ->
-        raise "Version should be a release version."
-    end
-    System.cmd "git", ["tag", "-a", version_tag, "-m", "Release #{version_tag}"]
-    System.cmd "git", ["push", "--tags"]
   end
 end

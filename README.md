@@ -8,8 +8,9 @@ ExfileB2 uses a local file-based cache to speed up file accesses and reduce band
 needs especially when doing processing. The default maximum is 100 MB, you can
 configure this to any amount you need.
 
-The B2 client is currently built in to this package. There are plans to break it out as its own
-package in the near future. Stay tuned.
+ExfileB2 uses [B2Client](https://github.com/keichan34/b2_client) to interface
+with Backblaze B2. If you want to use with Backblaze B2 without Exfile, you can
+use that library.
 
 Requires Elixir ~> 1.2.
 

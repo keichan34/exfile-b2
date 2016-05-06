@@ -25,7 +25,7 @@ defmodule ExfileB2.Backend do
 
   def open(backend, id) do
     case LocalCache.fetch(id) do
-      {:ok, path} ->
+      {:ok, _, path} ->
         {:ok, %LocalFile{path: path}}
       _error ->
         uncached_open(backend, id)
@@ -46,12 +46,19 @@ defmodule ExfileB2.Backend do
   def exists?(%{meta: m} = backend, id) do
     case @b2_client.download_head(m.b2, m.bucket, path(backend, id)) do
       {:ok, _} -> true
-      _ -> false
+      _ ->
+        LocalCache.delete(id)
+        false
     end
   end
 
   def size(%{meta: m} = backend, id) do
-    @b2_client.download_head(m.b2, m.bucket, path(backend, id))
+    case LocalCache.fetch(id) do
+      {:ok, size, _} ->
+        {:ok, size}
+      _error ->
+        @b2_client.download_head(m.b2, m.bucket, path(backend, id))
+    end
   end
 
   def delete(%{meta: m} = backend, file_id) do

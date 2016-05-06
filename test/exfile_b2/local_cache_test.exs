@@ -21,7 +21,7 @@ defmodule ExfileB2.LocalCacheTest do
   test "fetch/1 returns the path of a stored file" do
     {:ok, path} = LocalCache.store("stored-file", ["hello"])
 
-    assert {:ok, ^path} = LocalCache.fetch("stored-file")
+    assert {:ok, 5, ^path} = LocalCache.fetch("stored-file")
   end
 
   test "delete/1 deletes the file and key of one file" do
@@ -33,7 +33,7 @@ defmodule ExfileB2.LocalCacheTest do
     assert File.exists?(path1) == false
     assert :error = LocalCache.fetch("delete-1")
     assert File.exists?(path2) == true
-    assert {:ok, ^path2} = LocalCache.fetch("delete-2")
+    assert {:ok, 5, ^path2} = LocalCache.fetch("delete-2")
   end
 
   test "flush/0 deletes all files in the cache" do
@@ -75,7 +75,7 @@ defmodule ExfileB2.LocalCacheTest do
     assert File.exists?(path1) == false
     assert :error = LocalCache.fetch("lru-1")
     assert File.exists?(path2) == true
-    assert {:ok, ^path2} = LocalCache.fetch("lru-2")
+    assert {:ok, 6, ^path2} = LocalCache.fetch("lru-2")
 
     Application.put_env(:exfile_b2, :local_cache_size, 100_000_000)
   end

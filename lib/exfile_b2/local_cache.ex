@@ -38,6 +38,9 @@ defmodule ExfileB2.LocalCache do
   def delete(key),
     do: GenServer.call(__MODULE__, {:delete, key})
 
+  def size(key),
+    do: GenServer.call(__MODULE__, {:size, key})
+
   def flush(),
     do: GenServer.call(__MODULE__, :flush)
 
@@ -51,15 +54,8 @@ defmodule ExfileB2.LocalCache do
     {:ok, initial_state}
   end
 
-  def handle_call({:fetch, key}, _from, %{cache: cache} = state) do
-    {reply, state} = case Map.fetch(cache, key) do
-      {:ok, {_last_used, byte_size, path}} ->
-        state = state
-        |> update_in([:cache], &Map.put(&1, key, {ts, byte_size, path}))
-        {{:ok, path}, state}
-      _ ->
-        {:error, state}
-      end
+  def handle_call({:fetch, key}, _from, state) do
+    {reply, state} = perform_fetch(state, key)
     {:reply, reply, state}
   end
 
@@ -97,6 +93,17 @@ defmodule ExfileB2.LocalCache do
 
   def terminate(_reason, state) do
     perform_flush(state)
+  end
+
+  defp perform_fetch(%{cache: cache} = state, key) do
+    case Map.fetch(cache, key) do
+      {:ok, {_last_used, byte_size, path}} ->
+        state = state
+        |> update_in([:cache], &Map.put(&1, key, {ts, byte_size, path}))
+        {{:ok, byte_size, path}, state}
+      _ ->
+        {:error, state}
+    end
   end
 
   defp perform_delete(%{cache: cache} = state, key) do
